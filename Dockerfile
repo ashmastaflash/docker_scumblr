@@ -1,26 +1,28 @@
 # Docker for Scumblr
 # Author : Nag
 # Select ubuntu as the base image
-FROM ubuntu:14.04
+FROM ubuntu:16.04
 
 MAINTAINER Nag <nagwww@gmail.com>
 
 # Dockerfile for a Rails application using Nginx and Unicorn
 
 # Install nginx, nodejs and curl
-RUN apt-get update -q
-RUN apt-get install -qy nginx
-RUN apt-get install -qy curl
-RUN apt-get install -qy nodejs
-RUN apt-get install -qy git
+RUN apt-get update && apt-get upgrade -y \
+    nginx \
+    curl \
+    libcurl3 \
+    nodejs \
+    git
 
 # Prevent nginx from running in daemon mode
 RUN echo "daemon off;" >> /etc/nginx/nginx.conf
 
 # Retrieve code from github
-RUN git clone https://github.com/Netflix/scumblr.git /scumblr 
+RUN git clone https://github.com/Netflix/scumblr.git /scumblr
 
 # Install rvm, ruby, bundler, sidekiq
+RUN command curl -sSL https://rvm.io/mpapis.asc | gpg --import -
 RUN curl -sSL https://get.rvm.io | bash -s stable
 RUN /bin/bash -l -c "rvm requirements"
 RUN /bin/bash -l -c "rvm install 2.0.0-p481"
@@ -61,8 +63,6 @@ ADD config/scumblr/scumblr.rb /scumblr/config/initializers/
 
 # Add nginx config files and ssl cert/key
 ADD config/nginx/nginx-sites.conf /etc/nginx/sites-enabled/default
-ADD config/nginx/server.crt /etc/nginx/ssl/
-ADD config/nginx/server.key /etc/nginx/ssl/
 
 # Add startup script
 ADD scripts/start-server.sh /usr/bin/start-server.sh
@@ -70,8 +70,3 @@ RUN chmod +x /usr/bin/start-server.sh
 
 # Startup commands
 CMD /usr/bin/start-server.sh
-
-
-
-
-
