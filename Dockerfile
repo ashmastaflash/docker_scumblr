@@ -48,6 +48,9 @@ RUN useradd -d /home/ubuntu -m -s /bin/bash ubuntu &&\
 USER ubuntu
 RUN git clone https://github.com/Netflix/sketchy.git /home/ubuntu/sketchy
 
+# Override default Sketchy config...
+ADD config/sketchy/config-default.py /home/ubuntu/sketchy/
+
 # Install Sketchy
 USER root
 RUN cd /home/ubuntu/sketchy && python setup.py install &&\
