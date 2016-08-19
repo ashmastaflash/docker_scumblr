@@ -24,6 +24,8 @@ else
     -out /etc/nginx/ssl/server.crt
 fi
 
+supervisord -c /home/ubuntu/sketchy/supervisor/supervisord.ini
+
 source /etc/profile.d/rvm.sh
 
 cd /scumblr
@@ -44,6 +46,6 @@ bundle exec rake db:seed
 bundle exec rake assets:precompile
 bundle exec unicorn -D -p 8080
 
-redis-server &
+# redis-server &
 sidekiq -l log/sidekiq.log &
 nginx

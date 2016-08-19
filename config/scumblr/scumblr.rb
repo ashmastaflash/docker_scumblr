@@ -16,11 +16,14 @@
 Rails.application.routes.default_url_options[:host] ||= ENV["SCUMBLR_HOST"]
 Rails.application.routes.default_url_options[:protocol] ||= ENV["SCUMBLR_PROTOCOL"]
 
-Scumblr::Application.configure do 
+Scumblr::Application.configure do
   # Should Scumblr automatically generate screenshots for new results
-  config.sketchy_url = "https://#{ENV["SKETCHY_PORT_443_TCP_ADDR"]}:#{ENV["SKETCHY_PORT_443_TCP_PORT"]}/api/v1.0/capture"
-  config.sketchy_use_ssl = ENV["SKETCHY_USE_SSL"]
-  config.sketchy_verify_ssl = ENV["SKETCHY_VERIFY_SSL"]
+  # config.sketchy_url = "https://#{ENV["SKETCHY_PORT_443_TCP_ADDR"]}:#{ENV["SKETCHY_PORT_443_TCP_PORT"]}/api/v1.0/capture"
+  config.sketchy_url = "https://127.0.0.1:10443/api/v1.0/capture"
+  # config.sketchy_use_ssl = ENV["SKETCHY_USE_SSL"]
+  config.sketchy_use_ssl = true
+  # config.sketchy_verify_ssl = ENV["SKETCHY_VERIFY_SSL"]
+  config.sketchy_verify_ssl = false
   config.sketchy_access_token = ENV["SKETCHY_ACCESS_TOKEN"]
   config.sketchy_tag_status_code = ENV["SKETCHY_TAG_STATUS_CODE"]
 

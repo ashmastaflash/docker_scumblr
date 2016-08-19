@@ -7,13 +7,61 @@ MAINTAINER Nag <nagwww@gmail.com>
 
 # Dockerfile for a Rails application using Nginx and Unicorn
 
-# Install nginx, nodejs and curl
+# Install all the things
+RUN apt-key adv \
+    --keyserver keyserver.ubuntu.com \
+    --recv-keys B97B0AFCAA1A47F044F244A07FCC7D46ACCC4CF8
+
+RUN echo "deb http://apt.postgresql.org/pub/repos/apt/ precise-pgdg main" > \
+    /etc/apt/sources.list.d/pgdg.list
+
 RUN apt-get update && apt-get upgrade -y \
     nginx \
     curl \
     libcurl3 \
     nodejs \
-    git
+    git \
+    python-pip python-dev \
+    python-psycopg2 \
+    libpq-dev \
+    supervisor \
+    libmysqlclient-dev \
+    libxslt-dev \
+    libxml2-dev \
+    libfontconfig1 \
+    python-software-properties \
+    software-properties-common \
+    wget
+
+RUN wget -O /usr/local/share/phantomjs-1.9.7-linux-x86_64.tar.bz2 \
+    https://bitbucket.org/ariya/phantomjs/downloads/phantomjs-1.9.7-linux-x86_64.tar.bz2 && \
+    tar -xf /usr/local/share/phantomjs-1.9.7-linux-x86_64.tar.bz2 -C /usr/local/share/ &&\
+    ln -s /usr/local/share/phantomjs-1.9.7-linux-x86_64/bin/phantomjs /usr/local/bin/phantomjs
+
+
+# Add Sketchy user (ubuntu):
+RUN useradd -d /home/ubuntu -m -s /bin/bash ubuntu &&\
+    chmod -R 755 /home/ubuntu &&\
+    chown -R ubuntu:ubuntu /home/ubuntu
+
+# Get Sketchy code
+USER ubuntu
+RUN git clone https://github.com/Netflix/sketchy.git /home/ubuntu/sketchy
+
+# Install Sketchy
+USER root
+RUN cd /home/ubuntu/sketchy && python setup.py install &&\
+    su ubuntu -c "python /home/ubuntu/sketchy/manage.py create_db"
+
+ADD supervisord.ini /home/ubuntu/sketchy/supervisor/
+
+# RUN chmod 755 /usr/local/lib/python2.7/dist-packages/tld-0.6.4-py2.7.egg/tld/res/effective_tld_names.dat.txt
+
+RUN chown -R ubuntu:ubuntu /home/ubuntu/ && \
+    chmod -R 755 /home/ubuntu/ && \
+    cd /home/ubuntu/sketchy/supervisor && \
+    touch /home/ubuntu/sketchy/sketchy-deploy.log && \
+    chmod 755 /home/ubuntu/sketchy/sketchy-deploy.log
 
 # Prevent nginx from running in daemon mode
 RUN echo "daemon off;" >> /etc/nginx/nginx.conf
